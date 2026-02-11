@@ -1,0 +1,149 @@
+---
+description: "HighSchoolSoccerSimulatorプロジェクトのコーディング規則と基本方針"
+alwaysApply: true
+---
+
+# Cursor Rules for HighSchoolSoccerSimulator Project
+
+## プロジェクトルート
+
+- プロジェクトのルートディレクトリ: `/Volumes/KIOKIA500GB/Unity/Projects/HighSchoolSoccerSimulator/Assets/Scripts`
+- ファイルパスを参照する際は、このルートディレクトリを基準としてください
+
+## 基本方針
+
+- どんな時も、必ず日本語で返信してください
+- 質問者の発言が本当に正しいかを吟味し、常に自分で考えた回答するように心がけてください
+- 曖昧な情報で返事をすることは避け、確信を持って答えられないときはWeb検索に切り替えてください
+- 与えられた情報から問題や課題などを特定できない場合は、必要と思われるソースコードやファイルをユーザに聞き返すようにしてください。足りない情報から推測して回答するのは極力避けてください
+- コード生成を求められた場合は、変更部分のみをわかりやすく説明し、提示してください
+- 英語の長文やエラー文が貼り付けられたときは、翻訳しながら解説してください
+- Agentモードにおけるコードの生成および修正は、Review Next Fileにて、直接コードに書き加えてください
+
+## コーディング規則
+
+### クラスの命名規則
+
+- パスカルケース（PascalCase）（例: MyDog）
+
+### 変数の命名規則
+
+- キャメルケース（CamelCase）（例: myDog）
+
+- 種別サフィックスと例
+    - 変数名の末尾に型の種別を付ける
+    - 例:
+        - playerList（List型）
+        - scoreInt（int型）
+        - nameStr（string型）
+    - 例外1 bool: is/hasで表す
+    - 例:
+        - isSuccess（フラグ）
+        - hasBall（所持、存在）
+    - 例外2 独自クラス: 種別サフィックスをその独自クラス名にする
+    - 例:
+        - homePlayer（Player型）
+        - awayPlayer（Player型）
+        - player（Player型）単体ならクラス名をキャメルケースで書く
+    - 例外3 List, Arrayなど複数であることが明確な型: 複数形を使わない
+    - 例:
+        - ❌ `playersList`（複数形 + List）
+        - ✅ `playerList`（単数形 + List）
+
+- 例外
+    - プロパティ : パスカルケース（PascalCase）
+
+### 一時変数の命名規則
+
+- 使い捨ての一時的な変数には`temp`プレフィックスを付ける
+- 例:
+    - ❌ `List<Player> playerList = new List<Player>();`（一時的な用途）
+    - ✅ `List<Player> tempPlayerList = new List<Player>();`
+- 一時変数とは、関数内で短期的に使用され、最終的な結果を別の変数に格納するために使われる変数
+
+### 型の明示規則
+
+- `var`キーワードはなるべく使わない
+- 明示的に型を書ける場合は、必ず型を明示する
+- 例:
+    - ❌ `var playerList = new List<Player>();`
+    - ✅ `List<Player> playerList = new List<Player>();`
+- 型推論が必要な場合（匿名型、LINQの複雑な型など）のみ`var`を使用可能
+
+### 特殊な変数名の場合は、種別サフィックスを省略可能
+
+| 変数名 | 特別な名称 | 型名 |
+| --- | --- | --- |
+| xxxProb | 確率 | float |
+| xxxId | ID | int |
+| xxxCount | カウント | int |
+| xxxIndex | インデックス | int |
+| xxxRate | 割合・レート | float |
+| xxxDuration | 継続時間 | float |
+| xxxTime | 時間 | float |
+| xxxLevel | レベル | int |
+
+### 関数の引数規則
+
+- 関数の引数には `_` を先頭につける
+- 例:
+    - `private void Sample(int _speedInt)`
+    - `public void Move(Player _player, Coordinate _coordinate)`
+
+### 定数の命名規則
+
+- 全て大文字（例:const int WEIGHT = 70;）
+- スネークケース（SNAKE_CASE）
+
+### コメント規則
+
+- summaryは使用しない
+
+### Enum規則
+
+- 独立したスクリプトとしてScripts/Enumフォルダに配置する
+- Code: 数値代入なしのEnum
+- Type: 数値代入ありのEnum
+- Enumの値は全て大文字+スネークケース（SNAKE_CASE）で記述する
+- 例:
+    - ❌ `Home`, `Attack`, `Pass`
+    - ✅ `HOME`, `ATTACK`, `PASS`
+
+### Unity独自のGameObject / UI / Component参照の命名規則
+
+- コンポーネント種別を先に、具体名を後にする
+- パスカルケース（PascalCase）（例: MyDog）
+- 例:
+    - ImagePitch（Image + Pitch）
+    - TextScore（Text + Score）
+    - PrefabPlayer（Prefab + Player）
+    - SliderSeek（Slider + Seek）
+    - ButtonPlay（Button + Play）
+
+- 例外: 長いコンポーネント名は一部省略可能
+    - Transform → Trans
+    - RectTransform → RectTrans
+    - TextMeshProUGUI → Text
+
+### UIコンポーネント規則
+
+- テキストは TextMeshProUGUI（TMPro）を使用する（Legacy Text は使用しない）
+
+### 三項演算子規則
+
+- 三項演算子（`? :`）は使用しない
+- 条件分岐が必要な場合は、必ずif文を使用する
+- 例:
+    - ❌ `int value = condition ? 1 : 0;`
+    - ✅ 
+      ```csharp
+      int value;
+      if (condition)
+      {
+          value = 1;
+      }
+      else
+      {
+          value = 0;
+      }
+      ```
