@@ -1,8 +1,12 @@
-// 試合全体の状態を管理するクラス（PeriodLogには残さないものたち）
+// 試合全体の状態を管理するクラス（ゲームサーバーの役割）
 [System.Serializable]
 public class MatchState
 {
-    public TeamSideCode attackingTeamSideCode;  // 攻撃側チーム（ボール保持側）
+    public TeamSideCode attackingTeamSideCode;
+    public TeamSideCode prevAttackingTeamSideCode;
+    public int lastHolderIdInt;
+    public int homeScoreInt;
+    public int awayScoreInt;
     public Ball ball;
     public Team homeTeam;
     public Team awayTeam;
@@ -14,54 +18,134 @@ public class MatchState
         homeTeam = _homeTeam;
         awayTeam = _awayTeam;
         allPlayerList = _allPlayerList;
+        homeScoreInt = 0;
+        awayScoreInt = 0;
+        lastHolderIdInt = -1;
         UpdateAttackingTeam();
+        prevAttackingTeamSideCode = attackingTeamSideCode;
     }
 
-    // 攻撃側チームを更新（ボール保持者に基づく）
     public void UpdateAttackingTeam()
     {
         if (ball.holderId >= 0 && ball.holderTeamSideCode.HasValue)
         {
             attackingTeamSideCode = ball.holderTeamSideCode.Value;
         }
-        // ルーズボールの場合は前回の攻撃側を維持（または判定が必要な場合は追加ロジック）
     }
 
-    // 指定選手が攻撃側かどうかを判定
     public bool IsAttackingTeam(Player _player)
     {
         return _player.teamSideCode == attackingTeamSideCode;
     }
 
-    // 指定選手が守備側かどうかを判定
     public bool IsDefendingTeam(Player _player)
     {
         return !IsAttackingTeam(_player);
     }
 
-    // 攻撃側チームを取得
     public Team GetAttackingTeam()
     {
         if (attackingTeamSideCode == TeamSideCode.HOME)
         {
             return homeTeam;
         }
-        else
-        {
-            return awayTeam;
-        }
+        return awayTeam;
     }
 
-    // 守備側チームを取得
     public Team GetDefendingTeam()
     {
         if (attackingTeamSideCode == TeamSideCode.HOME)
         {
             return awayTeam;
         }
+        return homeTeam;
+    }
+
+    public void ScoreGoal(TeamSideCode _scoringTeamSideCode)
+    {
+        if (_scoringTeamSideCode == TeamSideCode.HOME)
+        {
+            homeScoreInt++;
+        }
         else
         {
-            return homeTeam;
+            awayScoreInt++;
+        }
+    }
+
+    // ネガティブトランジション: 守備行動不能の残り時間を1tick進める
+    public void TickNegativeTransition()
+    {
+        for (int i = 0; i < allPlayerList.Length; i++)
+        {
+            Player player = allPlayerList[i];
+            if (player.defenseFreezeRemainingPeriodCountInt <= 0)
+            {
+                continue;
+            }
+            player.defenseFreezeRemainingPeriodCountInt--;
+        }
+    }
+
+    // ポジティブトランジション: 攻撃行動不能の残り時間を1tick進める
+    public void TickPositiveTransition()
+    {
+        for (int i = 0; i < allPlayerList.Length; i++)
+        {
+            Player player = allPlayerList[i];
+            if (player.offenseFreezeRemainingPeriodCountInt <= 0)
+            {
+                continue;
+            }
+            player.offenseFreezeRemainingPeriodCountInt--;
+        }
+    }
+
+    // ネガティブトランジション適用: ボールロスト側チームに守備凍結を適用
+    public void ApplyNegativeTransition(TeamSideCode _lostTeamSideCode)
+    {
+        for (int i = 0; i < allPlayerList.Length; i++)
+        {
+            Player player = allPlayerList[i];
+            if (player.teamSideCode != _lostTeamSideCode)
+            {
+                continue;
+            }
+
+            int freezePeriodCountInt = player.playerVariable.negativeTransitionNonHolderFreezePeriodCountInt;
+            if (player.matchId == lastHolderIdInt)
+            {
+                freezePeriodCountInt = player.playerVariable.negativeTransitionLostHolderFreezePeriodCountInt;
+            }
+
+            if (player.defenseFreezeRemainingPeriodCountInt < freezePeriodCountInt)
+            {
+                player.defenseFreezeRemainingPeriodCountInt = freezePeriodCountInt;
+            }
+        }
+    }
+
+    // ポジティブトランジション適用: ボール奪取側チームに攻撃凍結を適用
+    public void ApplyPositiveTransition(TeamSideCode _gainedTeamSideCode)
+    {
+        for (int i = 0; i < allPlayerList.Length; i++)
+        {
+            Player player = allPlayerList[i];
+            if (player.teamSideCode != _gainedTeamSideCode)
+            {
+                continue;
+            }
+
+            int freezePeriodCountInt = player.playerVariable.positiveTransitionNonHolderFreezePeriodCountInt;
+            if (player.matchId == lastHolderIdInt)
+            {
+                freezePeriodCountInt = player.playerVariable.positiveTransitionHolderFreezePeriodCountInt;
+            }
+
+            if (player.offenseFreezeRemainingPeriodCountInt < freezePeriodCountInt)
+            {
+                player.offenseFreezeRemainingPeriodCountInt = freezePeriodCountInt;
+            }
         }
     }
 }

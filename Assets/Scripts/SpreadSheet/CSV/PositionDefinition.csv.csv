@@ -1,0 +1,12 @@
+positionStr,positionGroupStr,offenseFollowXRate,offenseFollowYRate,defenseFollowXRate,defenseFollowYRate,areaMinOffsetX,areaMinOffsetY,areaMaxOffsetX,areaMaxOffsetY
+GK,GK,0.05,0.05,0.05,0.05,-20,-2,20,13
+CB,DF,0.15,0.15,0.30,0.20,-15,-11,15,11
+SB,DF,0.10,0.30,0.25,0.20,-13,-13,13,47
+WB,MF,0.10,0.40,0.25,0.20,-13,-13,13,47
+DMF,MF,0.20,0.20,0.35,0.25,-20,-18,20,18
+CMF,MF,0.20,0.30,0.30,0.25,-20,-18,20,18
+OMF,MF,0.15,0.35,0.25,0.30,-20,-18,20,18
+WMF,MF,0.10,0.30,0.20,0.25,-13,-13,13,47
+CF,FW,0.15,0.25,0.15,0.30,-21,-2,19,34
+ST,FW,0.20,0.30,0.20,0.30,-21,-2,19,34
+WG,FW,0.05,0.30,0.15,0.30,-13,-13,13,47

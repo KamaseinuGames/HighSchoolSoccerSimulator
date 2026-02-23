@@ -7,7 +7,7 @@ using System.Reflection;
 
 public class MyMenuItems
 {
-    static private string dirPath = Path.Combine("Assets", "SpreadSheet", "Json");
+    static private string dirPath = Path.Combine("Assets", "Scripts", "SpreadSheet", "Json");
     static private string defaultOutputPath = Path.Combine("Assets", "Database", "JsonConvert");
 
     [MenuItem("MyTools/BASE/JsonPackedから_SOクラスを生成 %g")]

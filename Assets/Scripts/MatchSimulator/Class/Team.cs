@@ -5,70 +5,64 @@ using System.Collections.Generic;
 public class Team
 {
     public string nameStr;
-    public TeamSideCode teamSideCode;  // Home（Y+方向に攻める） or Away（Y-方向に攻める）
-    public int scoreInt;
+    public TeamSideCode teamSideCode;
     public List<Player> playerList;
-    public Coordinate[] formationCoordinates;  // フォーメーション座標リスト（初期配置）
+    public FormationData formationData;
+    public Coordinate[] formationCoordinates;
 
-    public Team(TeamSideCode _teamSideCode, string _nameStr)
+    // ポジション可動域辞書（全チーム共通、初回のみ生成）
+    static Dictionary<string, PositionDefinition> positionRoleDictionary;
+
+    public Team(TeamSideCode _teamSideCode, string _nameStr, PositionDefinition_SO _positionDefinitionSO)
     {
-        this.teamSideCode = _teamSideCode;
-        this.nameStr = _nameStr;
-        scoreInt = 0;
+        teamSideCode = _teamSideCode;
+        nameStr = _nameStr;
         playerList = new List<Player>();
+        formationData = FormationData.CreateDefault442();
         formationCoordinates = new Coordinate[11];
+
+        if (positionRoleDictionary == null)
+        {
+            positionRoleDictionary = PositionDefinition.CreateFromSO(_positionDefinitionSO);
+        }
     }
 
-    // 11人の選手を初期配置で生成
+    // 11人の選手をフォーメーションに基づいて生成
+    // playerList[0] = GK（固定座標）、playerList[1〜10] = slotArray[0〜9]
     public void CreatePlayers()
     {
         playerList.Clear();
-        
-        // GK
-        Coordinate coord0 = GetInitialCoordinate(0);
-        formationCoordinates[0] = coord0;
-        AddPlayer("GK", coord0);
-        
-        // DF (4人)
-        Coordinate coord1 = GetInitialCoordinate(1);
-        formationCoordinates[1] = coord1;
-        AddPlayer("DF1", coord1);
-        Coordinate coord2 = GetInitialCoordinate(2);
-        formationCoordinates[2] = coord2;
-        AddPlayer("DF2", coord2);
-        Coordinate coord3 = GetInitialCoordinate(3);
-        formationCoordinates[3] = coord3;
-        AddPlayer("DF3", coord3);
-        Coordinate coord4 = GetInitialCoordinate(4);
-        formationCoordinates[4] = coord4;
-        AddPlayer("DF4", coord4);
-        
-        // MF (4人)
-        Coordinate coord5 = GetInitialCoordinate(5);
-        formationCoordinates[5] = coord5;
-        AddPlayer("MF1", coord5);
-        Coordinate coord6 = GetInitialCoordinate(6);
-        formationCoordinates[6] = coord6;
-        AddPlayer("MF2", coord6);
-        Coordinate coord7 = GetInitialCoordinate(7);
-        formationCoordinates[7] = coord7;
-        AddPlayer("MF3", coord7);
-        Coordinate coord8 = GetInitialCoordinate(8);
-        formationCoordinates[8] = coord8;
-        AddPlayer("MF4", coord8);
-        
-        // FW (2人)
-        Coordinate coord9 = GetInitialCoordinate(9);
-        formationCoordinates[9] = coord9;
-        AddPlayer("FW1", coord9);
-        Coordinate coord10 = GetInitialCoordinate(10);
-        formationCoordinates[10] = coord10;
-        AddPlayer("FW2", coord10);
+
+        // GK（固定座標、slotArray外）
+        Coordinate gkCoord = GetGkCoordinate();
+        formationCoordinates[0] = gkCoord;
+        PositionDefinition gkRoleData = GetPositionDefinition("GK");
+        FormationSlot gkSlot = new FormationSlot(
+            "GK", "GK",
+            FormationData.GK_BASE_COORDINATE,
+            FormationData.GK_BASE_COORDINATE,
+            FormationData.GK_BASE_COORDINATE,
+            FormationData.GK_BASE_COORDINATE,
+            FormationData.GK_BASE_COORDINATE
+        );
+        AddPlayer("GK", gkCoord, gkSlot, gkRoleData);
+
+        // フィールドプレイヤー（slotArray: 10人）
+        for (int i = 0; i < formationData.slotArray.Length; i++)
+        {
+            FormationSlot slot = formationData.slotArray[i];
+            Coordinate coord = GetBaseCoordinate(i);
+            formationCoordinates[i + 1] = coord;
+
+            string roleStr = slot.defaultPositionStr;
+            PositionDefinition roleData = GetPositionDefinition(roleStr);
+            AddPlayer(roleStr, coord, slot, roleData);
+        }
     }
 
-    void AddPlayer(string _role, Coordinate _coord)
+    void AddPlayer(string _roleStr, Coordinate _coord, FormationSlot _slot, PositionDefinition _roleData)
     {
-        int teamIndex;  // Home: 0, Away: 1（プレイヤーID用）
+        int teamIndex;
         if (teamSideCode == TeamSideCode.HOME)
         {
             teamIndex = 0;
@@ -77,46 +71,56 @@ public class Team
         {
             teamIndex = 1;
         }
-        int matchId = teamIndex * 100 + playerList.Count;  // チームIDと連番でユニークID
-        int uniformId = playerList.Count + 1;  // ユニフォーム番号（1〜11）
-        string playerNameStr = $"{nameStr}_{_role}";
+        int matchId = teamIndex * 100 + playerList.Count;
+        int uniformId = playerList.Count + 1;
+        string playerNameStr = $"{nameStr}_{_roleStr}{uniformId}";
         PlayerProfile playerProfile = new PlayerProfile(uniformId, playerNameStr);
-        Player player = new Player(matchId, playerProfile, teamSideCode, PlayerStatus.CreateRandom());
+        Player player = new Player(matchId, playerProfile, teamSideCode, PlayerStatus.CreateRandom(), _slot, _roleData);
         player.coordinate = _coord;
         player.intentCoordinate = _coord;
         playerList.Add(player);
     }
 
-    // 初期配置を取得（インデックスに基づく）
-    Coordinate GetInitialCoordinate(int _index)
+    // GK座標を取得（AwayはY反転）
+    Coordinate GetGkCoordinate()
     {
-        // 自陣に配置（Home: Y=0-40, Away: Y=60-99）
-        int[] baseY = { 0, 10, 10, 20, 20, 30, 30, 40, 40, 55, 55 };  // 自陣内に配置（FWはY=55で相手陣側）
-        int[] baseX = { 35, 7, 25, 45, 60, 8, 25, 42, 60, 17, 50 };  // 各ポジションの行動可能範囲内に配置
-
-        int y, x;
-        if (teamSideCode == TeamSideCode.HOME)
+        Coordinate gkCoord = FormationData.GK_BASE_COORDINATE;
+        if (teamSideCode == TeamSideCode.AWAY)
         {
-            // Home: Y=0が自陣ゴール、Y=0-40が自陣、Y+方向に攻める
-            y = baseY[_index];
-            x = baseX[_index];
+            return new Coordinate(gkCoord.x, (GridEvaluator.HEIGHT - 1) - gkCoord.y);
         }
-        else
-        {
-            // Away: Y=HEIGHT-1が自陣ゴール、Y=60-100が自陣、Y-方向に攻める
-            y = (GridEvaluator.HEIGHT - 1) - baseY[_index];  // 反転して自陣に配置
-            x = baseX[_index];
-        }
-
-        return new Coordinate(x, y);
+        return gkCoord;
     }
 
-    // 指定インデックスの選手の初期配置を取得（外部から呼び出し可能）
+    // フィールドプレイヤーのベース座標を取得（AwayはY反転）
+    // _slotIndex: slotArray上のインデックス（0〜9）
+    Coordinate GetBaseCoordinate(int _slotIndex)
+    {
+        Coordinate baseCoord = formationData.slotArray[_slotIndex].baseCoordinate;
+        if (teamSideCode == TeamSideCode.AWAY)
+        {
+            return new Coordinate(baseCoord.x, (GridEvaluator.HEIGHT - 1) - baseCoord.y);
+        }
+        return baseCoord;
+    }
+
+    // ポジション可動域データを取得（見つからない場合はCMFをデフォルトとする）
+    PositionDefinition GetPositionDefinition(string _positionStr)
+    {
+        if (positionRoleDictionary.ContainsKey(_positionStr))
+        {
+            return positionRoleDictionary[_positionStr];
+        }
+        return positionRoleDictionary["CMF"];
+    }
+
+    // 指定インデックスの選手の初期配置を取得
+    // _playerIndex: playerList上のインデックス（0=GK, 1〜10=フィールド）
     public Coordinate GetPlayerInitialCoordinate(int _playerIndex)
     {
         if (_playerIndex < 0 || _playerIndex >= 11)
         {
-            int defaultY;  // デフォルトはGK位置
+            int defaultY;
             if (teamSideCode == TeamSideCode.HOME)
             {
                 defaultY = 0;
@@ -127,11 +131,9 @@ public class Team
             }
             return new Coordinate(35, defaultY);
         }
-        
-        return GetInitialCoordinate(_playerIndex);
+        return formationCoordinates[_playerIndex];
     }
 
-    // ボールを持っている選手を取得
     public Player GetBallHolder()
     {
         return playerList.Find(p => p.hasBall);
@@ -139,6 +141,6 @@ public class Team
 
     public override string ToString()
     {
-        return $"{nameStr} (Score: {scoreInt})";
+        return nameStr;
     }
 }

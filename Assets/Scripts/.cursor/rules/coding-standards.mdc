@@ -99,6 +99,14 @@ alwaysApply: true
 
 - summaryは使用しない
 
+### Partial分割（MatchSimulatorControllerなど）
+
+- 1つの大きなクラスを複数ファイルに分割する場合は `partial class` を使用してよい
+- 分割単位はネストクラス `Partial*` として定義する（例: `PartialBallFlight`, `PartialDribble`）
+- 呼び出し側（フィールド名）は **キャメルケース**で統一する（型名と衝突しないため）
+  - 例: `PartialBallFlight ballFlight;`
+  - 例: `ballFlight.ProcessBallFlight(log);`
+
 ### Enum規則
 
 - 独立したスクリプトとしてScripts/Enumフォルダに配置する
@@ -147,3 +155,15 @@ alwaysApply: true
           value = 0;
       }
       ```
+
+### 作業記録規則
+
+- 新機能の追加、仕様変更、バグ修正など、意味のある作業を行った場合は `Documents/作業記録.md` に必ず記録する
+- 記録フォーマット:
+    ```
+    ## YYYY/M/D
+    - 作業内容の要点（1行で簡潔に）
+    ```
+- **記録しないもの**: リファクタリング、変数名変更、コメント修正などの軽微な修正
+- 日付は作業日ごとにまとめ、新しい日付を上に追記していく
+- 試合シミュレーション（`MatchSimulator/`配下）に変更があった場合は `Documents/試合シミュレーションアルゴリズム.md` も最新の内容に更新する

@@ -1,0 +1,125 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0c9213775ebe4cd697ac84aeecaaaa4, type: 3}
+  m_Name: PositionDefinition
+  m_EditorClassIdentifier: Assembly-CSharp::PositionDefinition_SO
+  data:
+  - positionStr: GK
+    positionGroupStr: GK
+    offenseFollowXRate: 0.25
+    offenseFollowYRate: 0.25
+    defenseFollowXRate: 0.8
+    defenseFollowYRate: 0.8
+    areaMinOffsetX: 0
+    areaMinOffsetY: 0
+    areaMaxOffsetX: 0
+    areaMaxOffsetY: 0
+  - positionStr: CB
+    positionGroupStr: DF
+    offenseFollowXRate: 0.25
+    offenseFollowYRate: 0.25
+    defenseFollowXRate: 1
+    defenseFollowYRate: 1
+    areaMinOffsetX: 0
+    areaMinOffsetY: 0
+    areaMaxOffsetX: 0
+    areaMaxOffsetY: 0
+  - positionStr: SB
+    positionGroupStr: DF
+    offenseFollowXRate: 0.25
+    offenseFollowYRate: 0.25
+    defenseFollowXRate: 1
+    defenseFollowYRate: 1
+    areaMinOffsetX: 0
+    areaMinOffsetY: 0
+    areaMaxOffsetX: 0
+    areaMaxOffsetY: 0
+  - positionStr: WB
+    positionGroupStr: MF
+    offenseFollowXRate: 0.25
+    offenseFollowYRate: 0.25
+    defenseFollowXRate: 1
+    defenseFollowYRate: 1
+    areaMinOffsetX: 0
+    areaMinOffsetY: 0
+    areaMaxOffsetX: 0
+    areaMaxOffsetY: 0
+  - positionStr: DMF
+    positionGroupStr: MF
+    offenseFollowXRate: 0.6
+    offenseFollowYRate: 0.6
+    defenseFollowXRate: 0.6
+    defenseFollowYRate: 0.6
+    areaMinOffsetX: 0
+    areaMinOffsetY: 0
+    areaMaxOffsetX: 0
+    areaMaxOffsetY: 0
+  - positionStr: CMF
+    positionGroupStr: MF
+    offenseFollowXRate: 0.6
+    offenseFollowYRate: 0.6
+    defenseFollowXRate: 0.6
+    defenseFollowYRate: 0.6
+    areaMinOffsetX: 0
+    areaMinOffsetY: 0
+    areaMaxOffsetX: 0
+    areaMaxOffsetY: 0
+  - positionStr: OMF
+    positionGroupStr: MF
+    offenseFollowXRate: 0.6
+    offenseFollowYRate: 0.6
+    defenseFollowXRate: 0.6
+    defenseFollowYRate: 0.6
+    areaMinOffsetX: 0
+    areaMinOffsetY: 0
+    areaMaxOffsetX: 0
+    areaMaxOffsetY: 0
+  - positionStr: WMF
+    positionGroupStr: MF
+    offenseFollowXRate: 0.6
+    offenseFollowYRate: 0.6
+    defenseFollowXRate: 0.6
+    defenseFollowYRate: 0.6
+    areaMinOffsetX: 0
+    areaMinOffsetY: 0
+    areaMaxOffsetX: 0
+    areaMaxOffsetY: 0
+  - positionStr: CF
+    positionGroupStr: FW
+    offenseFollowXRate: 0.25
+    offenseFollowYRate: 0.25
+    defenseFollowXRate: 1
+    defenseFollowYRate: 1
+    areaMinOffsetX: 0
+    areaMinOffsetY: 0
+    areaMaxOffsetX: 0
+    areaMaxOffsetY: 0
+  - positionStr: ST
+    positionGroupStr: FW
+    offenseFollowXRate: 0.25
+    offenseFollowYRate: 0.25
+    defenseFollowXRate: 1
+    defenseFollowYRate: 1
+    areaMinOffsetX: 0
+    areaMinOffsetY: 0
+    areaMaxOffsetX: 0
+    areaMaxOffsetY: 0
+  - positionStr: WG
+    positionGroupStr: FW
+    offenseFollowXRate: 0.25
+    offenseFollowYRate: 0.25
+    defenseFollowXRate: 1
+    defenseFollowYRate: 1
+    areaMinOffsetX: 0
+    areaMinOffsetY: 0
+    areaMaxOffsetX: 0
+    areaMaxOffsetY: 0

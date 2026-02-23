@@ -1,0 +1,164 @@
+{
+    "data": [
+        {
+            "defaultPositionGroupStr": "DF",
+            "defaultPositionStr": "SB",
+            "baseCoordinate": {
+                "x": 13,
+                "y": 34
+            },
+            "goalKickOffenseCoordinate": {
+                "x": 13,
+                "y": 42
+            },
+            "goalKickDefenseCoordinate": {
+                "x": 13,
+                "y": 42
+            }
+        },
+        {
+            "defaultPositionGroupStr": "DF",
+            "defaultPositionStr": "CB",
+            "baseCoordinate": {
+                "x": 28,
+                "y": 33
+            },
+            "goalKickOffenseCoordinate": {
+                "x": 28,
+                "y": 41
+            },
+            "goalKickDefenseCoordinate": {
+                "x": 28,
+                "y": 41
+            }
+        },
+        {
+            "defaultPositionGroupStr": "DF",
+            "defaultPositionStr": "CB",
+            "baseCoordinate": {
+                "x": 42,
+                "y": 33
+            },
+            "goalKickOffenseCoordinate": {
+                "x": 42,
+                "y": 41
+            },
+            "goalKickDefenseCoordinate": {
+                "x": 42,
+                "y": 41
+            }
+        },
+        {
+            "defaultPositionGroupStr": "DF",
+            "defaultPositionStr": "SB",
+            "baseCoordinate": {
+                "x": 57,
+                "y": 34
+            },
+            "goalKickOffenseCoordinate": {
+                "x": 57,
+                "y": 42
+            },
+            "goalKickDefenseCoordinate": {
+                "x": 57,
+                "y": 42
+            }
+        },
+        {
+            "defaultPositionGroupStr": "MF",
+            "defaultPositionStr": "WMF",
+            "baseCoordinate": {
+                "x": 13,
+                "y": 42
+            },
+            "goalKickOffenseCoordinate": {
+                "x": 13,
+                "y": 54
+            },
+            "goalKickDefenseCoordinate": {
+                "x": 13,
+                "y": 54
+            }
+        },
+        {
+            "defaultPositionGroupStr": "MF",
+            "defaultPositionStr": "CMF",
+            "baseCoordinate": {
+                "x": 27,
+                "y": 41
+            },
+            "goalKickOffenseCoordinate": {
+                "x": 27,
+                "y": 53
+            },
+            "goalKickDefenseCoordinate": {
+                "x": 27,
+                "y": 53
+            }
+        },
+        {
+            "defaultPositionGroupStr": "MF",
+            "defaultPositionStr": "CMF",
+            "baseCoordinate": {
+                "x": 43,
+                "y": 41
+            },
+            "goalKickOffenseCoordinate": {
+                "x": 43,
+                "y": 53
+            },
+            "goalKickDefenseCoordinate": {
+                "x": 43,
+                "y": 53
+            }
+        },
+        {
+            "defaultPositionGroupStr": "MF",
+            "defaultPositionStr": "WMF",
+            "baseCoordinate": {
+                "x": 57,
+                "y": 42
+            },
+            "goalKickOffenseCoordinate": {
+                "x": 57,
+                "y": 54
+            },
+            "goalKickDefenseCoordinate": {
+                "x": 57,
+                "y": 54
+            }
+        },
+        {
+            "defaultPositionGroupStr": "FW",
+            "defaultPositionStr": "ST",
+            "baseCoordinate": {
+                "x": 25,
+                "y": 49
+            },
+            "goalKickOffenseCoordinate": {
+                "x": 25,
+                "y": 65
+            },
+            "goalKickDefenseCoordinate": {
+                "x": 25,
+                "y": 69
+            }
+        },
+        {
+            "defaultPositionGroupStr": "FW",
+            "defaultPositionStr": "CF",
+            "baseCoordinate": {
+                "x": 45,
+                "y": 49
+            },
+            "goalKickOffenseCoordinate": {
+                "x": 45,
+                "y": 65
+            },
+            "goalKickDefenseCoordinate": {
+                "x": 45,
+                "y": 69
+            }
+        }
+    ]
+}

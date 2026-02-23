@@ -1,0 +1,92 @@
+{
+    "data": [
+        {
+            "positionStr": "GK",
+            "positionGroupStr": "GK",
+            "offenseFollowXRate": 0.25,
+            "offenseFollowYRate": 0.25,
+            "defenseFollowXRate": 0.8,
+            "defenseFollowYRate": 0.8
+        },
+        {
+            "positionStr": "CB",
+            "positionGroupStr": "DF",
+            "offenseFollowXRate": 0.25,
+            "offenseFollowYRate": 0.25,
+            "defenseFollowXRate": 1,
+            "defenseFollowYRate": 1
+        },
+        {
+            "positionStr": "SB",
+            "positionGroupStr": "DF",
+            "offenseFollowXRate": 0.25,
+            "offenseFollowYRate": 0.25,
+            "defenseFollowXRate": 1,
+            "defenseFollowYRate": 1
+        },
+        {
+            "positionStr": "WB",
+            "positionGroupStr": "MF",
+            "offenseFollowXRate": 0.25,
+            "offenseFollowYRate": 0.25,
+            "defenseFollowXRate": 1,
+            "defenseFollowYRate": 1
+        },
+        {
+            "positionStr": "DMF",
+            "positionGroupStr": "MF",
+            "offenseFollowXRate": 0.6,
+            "offenseFollowYRate": 0.6,
+            "defenseFollowXRate": 0.6,
+            "defenseFollowYRate": 0.6
+        },
+        {
+            "positionStr": "CMF",
+            "positionGroupStr": "MF",
+            "offenseFollowXRate": 0.6,
+            "offenseFollowYRate": 0.6,
+            "defenseFollowXRate": 0.6,
+            "defenseFollowYRate": 0.6
+        },
+        {
+            "positionStr": "OMF",
+            "positionGroupStr": "MF",
+            "offenseFollowXRate": 0.6,
+            "offenseFollowYRate": 0.6,
+            "defenseFollowXRate": 0.6,
+            "defenseFollowYRate": 0.6
+        },
+        {
+            "positionStr": "WMF",
+            "positionGroupStr": "MF",
+            "offenseFollowXRate": 0.6,
+            "offenseFollowYRate": 0.6,
+            "defenseFollowXRate": 0.6,
+            "defenseFollowYRate": 0.6
+        },
+        {
+            "positionStr": "CF",
+            "positionGroupStr": "FW",
+            "offenseFollowXRate": 0.25,
+            "offenseFollowYRate": 0.25,
+            "defenseFollowXRate": 1,
+            "defenseFollowYRate": 1
+        },
+        {
+            "positionStr": "ST",
+            "positionGroupStr": "FW",
+            "offenseFollowXRate": 0.25,
+            "offenseFollowYRate": 0.25,
+            "defenseFollowXRate": 1,
+            "defenseFollowYRate": 1
+        },
+        {
+            "positionStr": "WG",
+            "positionGroupStr": "FW",
+            "offenseFollowXRate": 0.25,
+            "offenseFollowYRate": 0.25,
+            "defenseFollowXRate": 1,
+            "defenseFollowYRate": 1
+        }
+    ]
+}

@@ -1,0 +1,12 @@
+positionStr,positionGroupStr,offenseFollowXRate,offenseFollowYRate,defenseFollowXRate,defenseFollowYRate
+GK,GK,0.25,0.25,0.8,0.8
+CB,DF,0.25,0.25,1,1
+SB,DF,0.25,0.25,1,1
+WB,MF,0.25,0.25,1,1
+DMF,MF,0.6,0.6,0.6,0.6
+CMF,MF,0.6,0.6,0.6,0.6
+OMF,MF,0.6,0.6,0.6,0.6
+WMF,MF,0.6,0.6,0.6,0.6
+CF,FW,0.25,0.25,1,1
+ST,FW,0.25,0.25,1,1
+WG,FW,0.25,0.25,1,1

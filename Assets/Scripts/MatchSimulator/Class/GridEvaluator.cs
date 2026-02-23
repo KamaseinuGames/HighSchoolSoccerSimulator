@@ -21,299 +21,11 @@ public class GridEvaluator
         random = new System.Random();
     }
 
-    // 攻撃側: 最適な座標を探す
-    public Coordinate FindBestOffensiveCoordinate(Player _player, Ball _ball, Player[] _allPlayers)
+    // GK専用の意図座標を算出
+    public Coordinate FindGkIntent(Player _gkPlayer, Ball _ball)
     {
-        // 意図に応じて処理を分岐
-        if (_player.intentOffenseCode == IntentOffenseCode.HOLD_POSITION)
-        {
-            return _player.coordinate;
-        }
-        else if (_player.intentOffenseCode == IntentOffenseCode.SUPPORT)
-        {
-            return FindBestOffensiveCoordinateSupport(_player, _ball, _allPlayers);
-        }
-        else if (_player.intentOffenseCode == IntentOffenseCode.RUN_INTO_SPACE)
-        {
-            return FindBestOffensiveCoordinateRunIntoSpace(_player, _ball, _allPlayers);
-        }
-        else if (_player.intentOffenseCode == IntentOffenseCode.MAKE_WIDTH)
-        {
-            return FindBestOffensiveCoordinateMakeWidth(_player, _ball, _allPlayers);
-        }
-        else
-        {
-            // NONE またはその他の場合は全範囲探索
-            return FindBestOffensiveCoordinateDefault(_player, _ball, _allPlayers);
-        }
-    }
-
-    // SUPPORT: ボール保持者に近づく
-    Coordinate FindBestOffensiveCoordinateSupport(Player _player, Ball _ball, Player[] _allPlayers)
-    {
-        Player ballHolder = GetBallHolder(_ball, _allPlayers);
-        if (ballHolder == null)
-        {
-            return _player.coordinate;
-        }
-
-        Coordinate bestCoord = _player.coordinate;
-        float bestScore = float.MinValue;
-        int maxMovableInt = _player.playerVariable.maxMovableInt;
-
-        // ボール保持者の方向に向かって探索範囲を絞る
-        int dxToHolder = ballHolder.coordinate.x - _player.coordinate.x;
-        int dyToHolder = ballHolder.coordinate.y - _player.coordinate.y;
-
-        // 方向に応じて探索範囲を制限
-        int dxMin, dxMax, dyMin, dyMax;
-        if (dxToHolder > 0)
-        {
-            dxMin = 0;
-            dxMax = System.Math.Min(maxMovableInt, dxToHolder + maxMovableInt);
-        }
-        else if (dxToHolder < 0)
-        {
-            dxMin = System.Math.Max(-maxMovableInt, dxToHolder - maxMovableInt);
-            dxMax = 0;
-        }
-        else
-        {
-            dxMin = -maxMovableInt;
-            dxMax = maxMovableInt;
-        }
-
-        if (dyToHolder > 0)
-        {
-            dyMin = 0;
-            dyMax = System.Math.Min(maxMovableInt, dyToHolder + maxMovableInt);
-        }
-        else if (dyToHolder < 0)
-        {
-            dyMin = System.Math.Max(-maxMovableInt, dyToHolder - maxMovableInt);
-            dyMax = 0;
-        }
-        else
-        {
-            dyMin = -maxMovableInt;
-            dyMax = maxMovableInt;
-        }
-
-        for (int dx = dxMin; dx <= dxMax; dx++)
-        {
-            for (int dy = dyMin; dy <= dyMax; dy++)
-            {
-                int newX = _player.coordinate.x + dx;
-                int newY = _player.coordinate.y + dy;
-
-                if (newX < 0 || newX >= WIDTH || newY < 0 || newY >= HEIGHT) continue;
-
-                Coordinate coord = new Coordinate(newX, newY);
-
-                if (!_player.playerVariable.IsInMovableAreaOffensive(coord))
-                    continue;
-
-                float score = EvaluateOffensiveCoordinate(coord, _player, _ball, _allPlayers);
-
-                if (score > bestScore)
-                {
-                    bestScore = score;
-                    bestCoord = coord;
-                }
-            }
-        }
-
-        return bestCoord;
-    }
-
-    // RUN_INTO_SPACE: できるだけ前進する
-    Coordinate FindBestOffensiveCoordinateRunIntoSpace(Player _player, Ball _ball, Player[] _allPlayers)
-    {
-        Coordinate bestCoord = _player.coordinate;
-        float bestScore = float.MinValue;
-        int maxMovableInt = _player.playerVariable.maxMovableInt;
-
-        // ゴール方向を決定
         int goalY;
-        if (_player.teamSideCode == TeamSideCode.HOME)
-        {
-            goalY = HEIGHT - 1;
-        }
-        else
-        {
-            goalY = 0;
-        }
-
-        // 前進方向（ゴール方向）に向かって探索範囲を絞る
-        int dyToGoal = goalY - _player.coordinate.y;
-        int dyMin, dyMax;
-
-        if (dyToGoal > 0)
-        {
-            // ゴールが前方（HOMEの場合）
-            dyMin = 0;
-            dyMax = System.Math.Min(maxMovableInt, dyToGoal + maxMovableInt);
-        }
-        else if (dyToGoal < 0)
-        {
-            // ゴールが後方（AWAYの場合）
-            dyMin = System.Math.Max(-maxMovableInt, dyToGoal - maxMovableInt);
-            dyMax = 0;
-        }
-        else
-        {
-            dyMin = -maxMovableInt;
-            dyMax = maxMovableInt;
-        }
-
-        // x方向は全範囲探索（横方向の動きも考慮）
-        for (int dx = -maxMovableInt; dx <= maxMovableInt; dx++)
-        {
-            for (int dy = dyMin; dy <= dyMax; dy++)
-            {
-                int newX = _player.coordinate.x + dx;
-                int newY = _player.coordinate.y + dy;
-
-                if (newX < 0 || newX >= WIDTH || newY < 0 || newY >= HEIGHT) continue;
-
-                Coordinate coord = new Coordinate(newX, newY);
-
-                if (!_player.playerVariable.IsInMovableAreaOffensive(coord))
-                    continue;
-
-                float score = EvaluateOffensiveCoordinate(coord, _player, _ball, _allPlayers);
-
-                if (score > bestScore)
-                {
-                    bestScore = score;
-                    bestCoord = coord;
-                }
-            }
-        }
-
-        return bestCoord;
-    }
-
-    // MAKE_WIDTH: できるだけ外側（近い方のサイドライン）に近づく
-    Coordinate FindBestOffensiveCoordinateMakeWidth(Player _player, Ball _ball, Player[] _allPlayers)
-    {
-        Coordinate bestCoord = _player.coordinate;
-        float bestScore = float.MinValue;
-        int maxMovableInt = _player.playerVariable.maxMovableInt;
-
-        // 近い方のサイドラインを決定
-        int centerX = WIDTH / 2;  // 35
-        int distToLeftSide = _player.coordinate.x;
-        int distToRightSide = WIDTH - 1 - _player.coordinate.x;
-        int targetSideX;
-
-        if (distToLeftSide <= distToRightSide)
-        {
-            // 左サイドラインに近づく
-            targetSideX = 0;
-        }
-        else
-        {
-            // 右サイドラインに近づく
-            targetSideX = WIDTH - 1;
-        }
-
-        // サイドライン方向に向かって探索範囲を絞る
-        int dxToSide = targetSideX - _player.coordinate.x;
-        int dxMin, dxMax;
-
-        if (dxToSide > 0)
-        {
-            // 右サイドライン方向
-            dxMin = 0;
-            dxMax = System.Math.Min(maxMovableInt, dxToSide + maxMovableInt);
-        }
-        else if (dxToSide < 0)
-        {
-            // 左サイドライン方向
-            dxMin = System.Math.Max(-maxMovableInt, dxToSide - maxMovableInt);
-            dxMax = 0;
-        }
-        else
-        {
-            dxMin = -maxMovableInt;
-            dxMax = maxMovableInt;
-        }
-
-        // y方向は全範囲探索（縦方向の動きも考慮）
-        for (int dx = dxMin; dx <= dxMax; dx++)
-        {
-            for (int dy = -maxMovableInt; dy <= maxMovableInt; dy++)
-            {
-                int newX = _player.coordinate.x + dx;
-                int newY = _player.coordinate.y + dy;
-
-                if (newX < 0 || newX >= WIDTH || newY < 0 || newY >= HEIGHT) continue;
-
-                Coordinate coord = new Coordinate(newX, newY);
-
-                if (!_player.playerVariable.IsInMovableAreaOffensive(coord))
-                    continue;
-
-                float score = EvaluateOffensiveCoordinate(coord, _player, _ball, _allPlayers);
-
-                if (score > bestScore)
-                {
-                    bestScore = score;
-                    bestCoord = coord;
-                }
-            }
-        }
-
-        return bestCoord;
-    }
-
-    // デフォルト: 全範囲探索
-    Coordinate FindBestOffensiveCoordinateDefault(Player _player, Ball _ball, Player[] _allPlayers)
-    {
-        Coordinate bestCoord = _player.coordinate;
-        float bestScore = float.MinValue;
-        int maxMovableInt = _player.playerVariable.maxMovableInt;
-
-        for (int dx = -maxMovableInt; dx <= maxMovableInt; dx++)
-        {
-            for (int dy = -maxMovableInt; dy <= maxMovableInt; dy++)
-            {
-                int newX = _player.coordinate.x + dx;
-                int newY = _player.coordinate.y + dy;
-
-                if (newX < 0 || newX >= WIDTH || newY < 0 || newY >= HEIGHT) continue;
-
-                Coordinate coord = new Coordinate(newX, newY);
-
-                if (!_player.playerVariable.IsInMovableAreaOffensive(coord))
-                    continue;
-
-                float score = EvaluateOffensiveCoordinate(coord, _player, _ball, _allPlayers);
-
-                if (score > bestScore)
-                {
-                    bestScore = score;
-                    bestCoord = coord;
-                }
-            }
-        }
-
-        return bestCoord;
-    }
-
-    // 守備側: 最適な座標を探す（役割に応じて動く）
-    public Coordinate FindBestDefensiveCoordinate(Player _player, Ball _ball, Player[] _allPlayers)
-    {
-        Coordinate currentCoord = _player.coordinate;
-        Coordinate ballCoord = _ball.coordinate;
-        int maxMovable = _player.playerVariable.maxMovableInt;
-
-        // 選手番号から役割を判定（0=GK, 1-4=DF, 5-8=MF, 9-10=FW）
-        int role = _player.matchId % 100;  // チーム内インデックス
-
-        int goalY;  // 守るゴールのY座標
-        if (_player.teamSideCode == TeamSideCode.HOME)
+        if (_gkPlayer.teamSideCode == TeamSideCode.HOME)
         {
             goalY = 0;
         }
@@ -321,146 +33,8 @@ public class GridEvaluator
         {
             goalY = HEIGHT - 1;
         }
-
-        int newX, newY;
-
-        if (role == 0)
-        {
-            // GK: ゴール前に留まる（x方向だけボールを追う）
-            newX = System.Math.Clamp(ballCoord.x, 20, 50);  // 中央付近に制限
-            newY = goalY;
-        }
-        else if (role <= 4)
-        {
-            // DF: ゴール前のゾーンを守る（y方向はあまり離れない）
-            int defenseLineY;
-            if (_player.teamSideCode == TeamSideCode.HOME)
-            {
-                defenseLineY = 20;
-            }
-            else
-            {
-                defenseLineY = 80;
-            }
-            newX = System.Math.Clamp(currentCoord.x + System.Math.Sign(ballCoord.x - currentCoord.x), 0, WIDTH - 1);
-            newY = System.Math.Clamp(defenseLineY + System.Math.Sign(ballCoord.y - defenseLineY), 0, HEIGHT - 1);
-        }
-        else if (role <= 8)
-        {
-            // MF: 中盤でボールを追う
-            int dx = System.Math.Sign(ballCoord.x - currentCoord.x);
-            int dy = System.Math.Sign(ballCoord.y - currentCoord.y);
-            newX = System.Math.Clamp(currentCoord.x + dx, 0, WIDTH - 1);
-            newY = System.Math.Clamp(currentCoord.y + dy, 0, HEIGHT - 1);
-        }
-        else
-        {
-            // FW: ボールを積極的に追う
-            int dx = System.Math.Sign(ballCoord.x - currentCoord.x);
-            int dy = System.Math.Sign(ballCoord.y - currentCoord.y);
-            newX = System.Math.Clamp(currentCoord.x + dx * maxMovable, 0, WIDTH - 1);
-            newY = System.Math.Clamp(currentCoord.y + dy * maxMovable, 0, HEIGHT - 1);
-        }
-
-        Coordinate targetCoord = new Coordinate(newX, newY);
-
-        // 守備時の行動可能範囲外の場合は現在位置に留まる
-        if (!_player.playerVariable.IsInMovableAreaDefensive(targetCoord))
-        {
-            return currentCoord;
-        }
-
-        // 味方が既にいる場合は現在位置に留まる
-        if (IsOccupiedByTeammate(targetCoord, _player, _allPlayers))
-        {
-            return currentCoord;
-        }
-
-        return targetCoord;
-    }
-
-    // 指定座標に味方がいるかチェック
-    bool IsOccupiedByTeammate(Coordinate _coord, Player _self, Player[] _allPlayers)
-    {
-        foreach (Player p in _allPlayers)
-        {
-            if (p == _self) continue;
-            if (p.teamSideCode == _self.teamSideCode && p.coordinate == _coord)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // 攻撃側の座標評価
-    float EvaluateOffensiveCoordinate(Coordinate _coord, Player _player, Ball _ball, Player[] _allPlayers)
-    {
-        float score = 0;
-
-        // IntentOffenseCodeに応じた評価
-        if (_player.intentOffenseCode == IntentOffenseCode.SUPPORT)
-        {
-            // ボール保持者に近づく
-            Player ballHolder = GetBallHolder(_ball, _allPlayers);
-            if (ballHolder != null)
-            {
-                float distToHolder = _coord.DistanceTo(ballHolder.coordinate);
-                // 距離が近いほど良い（最大30グリッドで正規化）
-                score += (30f - System.Math.Min(distToHolder, 30f)) / 30f * 5.0f;
-            }
-        }
-        else if (_player.intentOffenseCode == IntentOffenseCode.RUN_INTO_SPACE)
-        {
-            // できるだけ前進する
-            int goalY;
-            if (_player.teamSideCode == TeamSideCode.HOME)
-            {
-                goalY = HEIGHT - 1;
-            }
-            else
-            {
-                goalY = 0;
-            }
-            float goalDist = System.Math.Abs(_coord.y - goalY);
-            score += (HEIGHT - goalDist) / HEIGHT * 5.0f;
-        }
-        else if (_player.intentOffenseCode == IntentOffenseCode.MAKE_WIDTH)
-        {
-            // できるだけ外側（近い方のサイドライン）に近づく
-            int centerX = WIDTH / 2;  // 35
-            int distToCenter = System.Math.Abs(_coord.x - centerX);
-            // 中央から離れているほど良い（最大35グリッドで正規化）
-            score += distToCenter / 35f * 5.0f;
-        }
-        else
-        {
-            // NONE またはその他の場合は従来の評価
-            // ゴールへの近さ（y=HEIGHT-1がゴールと仮定）
-            int goalY;
-            if (_player.teamSideCode == TeamSideCode.HOME)
-            {
-                goalY = HEIGHT - 1;
-            }
-            else
-            {
-                goalY = 0;
-            }
-            float goalDist = System.Math.Abs(_coord.y - goalY);
-            score += (HEIGHT - goalDist) / HEIGHT * 1.5f;
-
-            // 敵との距離（遠いほど良い）
-            float nearestEnemyDist = GetNearestEnemyDistance(_coord, _player.teamSideCode, _allPlayers);
-            score += System.Math.Min(nearestEnemyDist / 30f, 1f) * 2.0f;
-
-            // パスコースが通るか（簡易判定）
-            if (IsPassPathClear(_ball.coordinate, _coord, _player.teamSideCode, _allPlayers))
-            {
-                score += 1.2f;
-            }
-        }
-
-        return score;
+        int newX = System.Math.Clamp(_ball.coordinate.x, 20, 50);
+        return new Coordinate(newX, goalY);
     }
 
     // ボール保持者を取得
@@ -619,5 +193,260 @@ public class GridEvaluator
     public static int GetPlayerDistance(Player _player1, Player _player2)
     {
         return _player1.coordinate.DistanceTo(_player2.coordinate);
+    }
+
+    // === 視野角 ===
+
+    // ボール保持者の向き（攻撃ゴール方向）を取得。正規化された方向ベクトル (dx, dy)
+    public static void GetFacingDirectionToGoal(Player _player, out float _dirX, out float _dirY)
+    {
+        int goalY;
+        if (_player.teamSideCode == TeamSideCode.HOME)
+        {
+            goalY = HEIGHT - 1;
+        }
+        else
+        {
+            goalY = 0;
+        }
+
+        int dx = 35 - _player.coordinate.x;
+        int dy = goalY - _player.coordinate.y;
+
+        float len = UnityEngine.Mathf.Sqrt(dx * dx + dy * dy);
+        if (len <= 0.001f)
+        {
+            _dirX = 0f;
+            _dirY = (_player.teamSideCode == TeamSideCode.HOME) ? 1f : -1f;
+            return;
+        }
+
+        _dirX = dx / len;
+        _dirY = dy / len;
+    }
+
+    // 非保持者の向き（ボール方向）を取得。正規化された方向ベクトル (dx, dy)
+    public static void GetFacingDirectionToBall(Player _player, Coordinate _ballCoordinate, out float _dirX, out float _dirY)
+    {
+        int dx = _ballCoordinate.x - _player.coordinate.x;
+        int dy = _ballCoordinate.y - _player.coordinate.y;
+
+        float len = UnityEngine.Mathf.Sqrt(dx * dx + dy * dy);
+        if (len <= 0.001f)
+        {
+            GetFacingDirectionToGoal(_player, out _dirX, out _dirY);
+            return;
+        }
+
+        _dirX = dx / len;
+        _dirY = dy / len;
+    }
+
+    // 指定座標が視野内（扇形）にあるか判定
+    // _from: 視点の座標
+    // _dirX, _dirY: 向きベクトル（正規化済み）
+    // _target: 判定対象の座標
+    // _halfAngleDeg: 視野の半角（度）。60なら左右60度ずつ
+    public static bool IsInFieldOfView(Coordinate _from, float _dirX, float _dirY, Coordinate _target, float _halfAngleDeg)
+    {
+        int toX = _target.x - _from.x;
+        int toY = _target.y - _from.y;
+
+        if (toX == 0 && toY == 0)
+        {
+            return true;
+        }
+
+        float toLen = UnityEngine.Mathf.Sqrt(toX * toX + toY * toY);
+        float targetDirX = toX / toLen;
+        float targetDirY = toY / toLen;
+
+        float dot = _dirX * targetDirX + _dirY * targetDirY;
+        float angleRad = UnityEngine.Mathf.Acos(UnityEngine.Mathf.Clamp(dot, -1f, 1f));
+        float angleDeg = angleRad * 180f / UnityEngine.Mathf.PI;
+
+        return angleDeg <= _halfAngleDeg;
+    }
+
+    // パサーがレシーバーを視野内に見ているか
+    public static bool CanPasserSeeReceiver(Player _passer, Player _receiver, Ball _ball)
+    {
+        float dirX;
+        float dirY;
+        if (_passer.hasBall)
+        {
+            GetFacingDirectionToGoal(_passer, out dirX, out dirY);
+        }
+        else
+        {
+            GetFacingDirectionToBall(_passer, _ball.coordinate, out dirX, out dirY);
+        }
+
+        return IsInFieldOfView(_passer.coordinate, dirX, dirY, _receiver.coordinate, Consts.VISION_HALF_ANGLE_DEG);
+    }
+
+    // レシーバーがパス方向（パサーからの接近）を視野内で捉えているか
+    // 視野外からのパス = 後ろから来たボール → トラップミスしやすい
+    public static bool IsPassApproachInReceiverView(Player _receiver, Coordinate _passerCoordinate)
+    {
+        int approachX = _passerCoordinate.x - _receiver.coordinate.x;
+        int approachY = _passerCoordinate.y - _receiver.coordinate.y;
+
+        if (approachX == 0 && approachY == 0)
+        {
+            return true;
+        }
+
+        float approachLen = UnityEngine.Mathf.Sqrt(approachX * approachX + approachY * approachY);
+        float approachDirX = approachX / approachLen;
+        float approachDirY = approachY / approachLen;
+
+        float receiverDirX;
+        float receiverDirY;
+        GetFacingDirectionToGoal(_receiver, out receiverDirX, out receiverDirY);
+
+        float dot = receiverDirX * approachDirX + receiverDirY * approachDirY;
+        float angleRad = UnityEngine.Mathf.Acos(UnityEngine.Mathf.Clamp(dot, -1f, 1f));
+        float angleDeg = angleRad * 180f / UnityEngine.Mathf.PI;
+
+        return angleDeg <= Consts.VISION_HALF_ANGLE_DEG;
+    }
+
+    // ドリブル: 視野内で空いている最良の1マスを取得。見つからなければfalse
+    public static bool TryFindBestDribbleTargetInView(Player _dribbler, Player[] _allPlayers, out Coordinate _targetCoord)
+    {
+        _targetCoord = _dribbler.coordinate;
+
+        float dirX;
+        float dirY;
+        GetFacingDirectionToGoal(_dribbler, out dirX, out dirY);
+
+        int goalY;
+        if (_dribbler.teamSideCode == TeamSideCode.HOME)
+        {
+            goalY = HEIGHT - 1;
+        }
+        else
+        {
+            goalY = 0;
+        }
+
+        Coordinate bestCoord = _dribbler.coordinate;
+        int bestGoalDist = int.MaxValue;
+        bool foundAny = false;
+
+        for (int dx = -1; dx <= 1; dx++)
+        {
+            for (int dy = -1; dy <= 1; dy++)
+            {
+                if (dx == 0 && dy == 0)
+                {
+                    continue;
+                }
+
+                int nextX = _dribbler.coordinate.x + dx;
+                int nextY = _dribbler.coordinate.y + dy;
+                if (nextX < 0 || nextX >= WIDTH || nextY < 0 || nextY >= HEIGHT)
+                {
+                    continue;
+                }
+
+                Coordinate candidateCoord = new Coordinate(nextX, nextY);
+                if (!IsInFieldOfView(_dribbler.coordinate, dirX, dirY, candidateCoord, Consts.VISION_HALF_ANGLE_DEG))
+                {
+                    continue;
+                }
+
+                if (IsOccupiedByAnyone(candidateCoord, _dribbler, _allPlayers))
+                {
+                    continue;
+                }
+
+                int goalDist = System.Math.Abs(nextY - goalY);
+                if (goalDist < bestGoalDist)
+                {
+                    bestGoalDist = goalDist;
+                    bestCoord = candidateCoord;
+                    foundAny = true;
+                }
+            }
+        }
+
+        if (foundAny)
+        {
+            _targetCoord = bestCoord;
+            return true;
+        }
+
+        return false;
+    }
+
+    static bool IsOccupiedByAnyone(Coordinate _coord, Player _self, Player[] _allPlayers)
+    {
+        foreach (Player p in _allPlayers)
+        {
+            if (p == _self)
+            {
+                continue;
+            }
+            if (p.coordinate == _coord)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // シュート: 視野中央（ゴール方向の狭い範囲）に敵がいるか
+    public static bool HasEnemyInCentralVision(Player _shooter, Player[] _allPlayers)
+    {
+        float dirX;
+        float dirY;
+        GetFacingDirectionToGoal(_shooter, out dirX, out dirY);
+
+        foreach (Player p in _allPlayers)
+        {
+            if (p.teamSideCode == _shooter.teamSideCode)
+            {
+                continue;
+            }
+
+            if (p.coordinate == _shooter.coordinate)
+            {
+                continue;
+            }
+
+            if (!IsInFieldOfView(_shooter.coordinate, dirX, dirY, p.coordinate, Consts.VISION_CENTRAL_HALF_ANGLE_DEG))
+            {
+                continue;
+            }
+
+            int goalY;
+            if (_shooter.teamSideCode == TeamSideCode.HOME)
+            {
+                goalY = HEIGHT - 1;
+            }
+            else
+            {
+                goalY = 0;
+            }
+
+            bool isBetweenGoal;
+            if (_shooter.teamSideCode == TeamSideCode.HOME)
+            {
+                isBetweenGoal = p.coordinate.y >= _shooter.coordinate.y && p.coordinate.y <= goalY;
+            }
+            else
+            {
+                isBetweenGoal = p.coordinate.y <= _shooter.coordinate.y && p.coordinate.y >= goalY;
+            }
+
+            if (isBetweenGoal)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

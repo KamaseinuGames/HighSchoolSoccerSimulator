@@ -1338,10 +1338,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df87fa6d338b249f6ba0fa5dabdb0585, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimulatorDigest
-  secondsPerMinute: 0.5
+  secondsPerMinute: 0.2
+  goalBallAnimPeriodFloat: 15
+  goalResetAnimPeriodFloat: 15
+  setPlayPausePeriodFloat: 15
   RectTransImagePitch: {fileID: 8678105}
   PrefabBall: {fileID: 7668937641364942712, guid: 4328b3aa056714b61a267dcec3d57e47, type: 3}
   PrefabPlayer: {fileID: 1001578455749311940, guid: b02b12dc2a15841f3a89dbeca7ca5782, type: 3}
+  playerRotationOffset: -90
   PrefabGridTile: {fileID: 7093446051788593837, guid: 19bcfdaff1e38499c8017e8c9dad9b7f, type: 3}
   TextScore: {fileID: 295286841}
   TextMinute: {fileID: 287134833}
@@ -1349,13 +1353,7 @@ MonoBehaviour:
   SliderSeek: {fileID: 1913699197}
   TextBallHolder: {fileID: 1516139751}
   TextBallHolderAction: {fileID: 1179959434}
-  colorHome: {r: 0.2, g: 0.4, b: 1, a: 1}
-  colorAway: {r: 1, g: 0.3, b: 0.3, a: 1}
-  colorBall: {r: 1, g: 1, b: 1, a: 1}
-  colorGridLight: {r: 0.627, g: 1, b: 0.753, a: 1}
-  colorGridDark: {r: 0.55, g: 0.88, b: 0.66, a: 1}
-  colorLine: {r: 1, g: 1, b: 1, a: 1}
-  colorGoal: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  playerBaseScale: 0.75
 --- !u!1 &872406451
 GameObject:
   m_ObjectHideFlags: 0
@@ -1949,8 +1947,8 @@ RectTransform:
   - {fileID: 872406452}
   - {fileID: 287134832}
   - {fileID: 796305501}
-  - {fileID: 271378476}
   - {fileID: 1516139750}
+  - {fileID: 271378476}
   - {fileID: 1179959433}
   - {fileID: 1913699196}
   m_Father: {fileID: 821024252}
@@ -2188,6 +2186,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimulatorMatch
   matchMinutes: 90
+  positionDefinitionSO: {fileID: 11400000, guid: e9ccca4c7932b42328a317c85d0c8b8f, type: 2}
   matchSimulatorDigest: {fileID: 865969037}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
